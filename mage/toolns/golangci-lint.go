@@ -21,7 +21,7 @@ const (
 	golangciDefaultVersion   = "1.19.0"
 )
 
-// Install golangci-lint to $TOOL_CACHE/bin/golangci-lint-<$GOLANGCILINT_VER), default GOLANGCILINT_VER=1.19.0.
+// Install golangci-lint to $TOOL_CACHE/bin/golangci-lint-<$GOLANGCILINT_VER>, defaults: GOLANGCILINT_VER=1.19.0.
 func (g Golangcilint) Install() error {
 	t, err := g.path()
 	if err != nil {
@@ -71,7 +71,7 @@ func (g Golangcilint) runOpts() []string {
 	return strings.Split(opts, " ")
 }
 
-// Run golangci-lint. defaults: GOLANGCILINT_VER=1.19.0. GOLANGCILINT_RUN_OPTS="--fix ./..."
+// Run golangci-lint, defaults: GOLANGCILINT_VER=1.19.0. GOLANGCILINT_RUN_OPTS="--fix ./..."
 func (g Golangcilint) Run() error {
 	mg.Deps(g.Install)
 	p, err := g.path()

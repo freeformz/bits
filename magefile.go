@@ -3,6 +3,8 @@
 package main
 
 import (
-	// mage:import tool
-	_ "github.com/freeformz/bits/mage/tools"
+	// mage:import
+	_ "github.com/freeformz/bits/mage/gons"
+	// mage:import
+	_ "github.com/freeformz/bits/mage/toolns"
 )
