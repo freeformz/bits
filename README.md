@@ -2,6 +2,8 @@
 
 ## mage stuff
 
+For use in your magefile.
+
 ```console
 $ mage -init
 magefile.go created
