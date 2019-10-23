@@ -1,7 +1,11 @@
 package gons
 
 import (
+	"bufio"
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -10,6 +14,49 @@ import (
 	"github.com/magefile/mage/sh"
 	"github.com/magefile/mage/target"
 )
+
+var (
+	ModuleName = moduleName() // ModuleName, if not set this is determined from the go.mod file
+	Version    = version()    // Version of go to use, if not set this defaults to what is returned from `https://golang.org/VERSION?m=text`
+)
+
+//TODO: warning or error instead of just empty return
+func moduleName() string {
+	d, err := os.Getwd()
+	if err != nil {
+		return ""
+	}
+	f, err := os.Open(filepath.Join(d, "go.mod"))
+	if err != nil {
+		return ""
+	}
+	defer f.Close()
+	s := bufio.NewScanner(f)
+	var m string
+	for s.Scan() {
+		m = s.Text()
+		p := strings.SplitN(m, " ", 2)
+		if len(p) == 2 && p[0] == "module" {
+			fmt.Println("ModuleName:", p[1])
+			return p[1]
+		}
+	}
+	return ""
+}
+
+//TODO: warning or error instead of just empty return
+func version() string {
+	r, err := http.Get("https://golang.org/VERSION?m=text")
+	if err != nil {
+		return ""
+	}
+	d, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return ""
+	}
+	fmt.Println("GoVersion:", string(d))
+	return string(d)
+}
 
 type Go mg.Namespace
 
