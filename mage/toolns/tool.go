@@ -14,14 +14,14 @@ import (
 
 const dirMode = os.ModeDir | os.ModePerm
 
-var defaultToolCache = ".toolcache"
+var defaultCache = filepath.Join(".bit", "toolcache")
 
 func defaultToolDir() (string, error) {
 	user, err := user.Current()
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(user.HomeDir, defaultToolCache), nil
+	return filepath.Join(user.HomeDir, defaultCache), nil
 }
 
 func toolsDir() (string, error) {
@@ -29,16 +29,7 @@ func toolsDir() (string, error) {
 	if tl == "" {
 		return defaultToolDir()
 	}
-	d, err := repoRoot()
-	if err != nil {
-		return "", err
-	}
-	d = filepath.Join(d, ".tools")
-	err = os.MkdirAll(d, dirMode)
-	if os.IsExist(err) {
-		err = nil
-	}
-	return d, err
+	return tl, nil
 }
 
 func binDir() (string, error) {

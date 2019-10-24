@@ -36,7 +36,6 @@ if [ -e "${MF}" ]; then
 fi
 
 MODULE=$(awk '/^module/ { print $2; exit }' < go.mod)
-cat ~
 if [ -z "${MODULE}" ]; then
   echo "Unable to determine go module name"
 	exit 1
@@ -63,8 +62,16 @@ import (
 
 func init() {
 	// Defaults to whatever go.mod says, but can be overridden here.
-  gons.ModuleName = "${MODULE}"
-	// Defaults to https://golang.org/VERSION?m=text output, but can be overriden here
-  gons.Version = "${CGV}"
+	gons.ModuleName = "${MODULE}"
+	// Defaults to https://golang.org/VERSION?m=text output, but can be overridden here
+	gons.Version = "${CGV}"
 }
 EOF
+
+gofmt -w ${MF}
+
+go get github.com/freeformz/bits/mage
+go mod edit -replace=github.com/freeformz/bits=../bits
+echo "setup complete"
+echo "Take a look at the values set in magefile.go"
+mage -f

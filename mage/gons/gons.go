@@ -17,8 +17,15 @@ import (
 
 var (
 	ModuleName = moduleName() // ModuleName, if not set this is determined from the go.mod file
-	Version    = version()    // Version of go to use, if not set this defaults to what is returned from `https://golang.org/VERSION?m=text`
+	UseVersion = ""
 )
+
+func version() (string, error) {
+	if UseVersion != "" {
+		return expandVersion(UseVersion)
+	}
+	return latestVersion()
+}
 
 //TODO: warning or error instead of just empty return
 func moduleName() string {
@@ -37,7 +44,6 @@ func moduleName() string {
 		m = s.Text()
 		p := strings.SplitN(m, " ", 2)
 		if len(p) == 2 && p[0] == "module" {
-			fmt.Println("ModuleName:", p[1])
 			return p[1]
 		}
 	}
@@ -45,17 +51,17 @@ func moduleName() string {
 }
 
 //TODO: warning or error instead of just empty return
-func version() string {
+func latestVersion() (string, error) {
 	r, err := http.Get("https://golang.org/VERSION?m=text")
 	if err != nil {
-		return ""
+		return "", err
 	}
 	d, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		return ""
+		return "", err
 	}
 	fmt.Println("GoVersion:", string(d))
-	return string(d)
+	return string(d), nil
 }
 
 type Go mg.Namespace
@@ -114,6 +120,9 @@ func goFiles() ([]string, error) {
 
 // Run go tool cover, defaults: GO_COVER_ARGS="-html=coverage.out -o coverage.html"
 func (g Go) Cover() error {
+	v, err := versions()
+	fmt.Println("versions:", v, err)
+	fmt.Println(expandVersion("go1.13.x"))
 	gf, err := goFiles()
 	if err != nil {
 		return err
