@@ -1,37 +1,43 @@
 # bits
 
-## mage stuff
-
-For use in your magefile.
+### Quick Start
 
 ```console
-$ mage -init
-magefile.go created
+$ go mod init <module name>
+$ git init .
+$ git add go.mod
+$ git commit -avm "new go module"
+$ t=$(mktemp) curl -s -L https://raw.githubusercontent.com/freeformz/bits/v0.0.4/mage/setup.sh > $t && (bash $t; rm -f $t)
+...
 ```
 
-magefile.go
-
-```go
-// +build mage
-
-package main
-
-import (
-  // mage:import
-  _ "github.com/freeformz/bits/mage/gons"
-  // mage:import
-  _ "github.com/freeformz/bits/mage/toolns"
-)
-
-```
+Creates a defaults magefile.go, .circleci config, .gitignore, & .golangci.yml
 
 ```console
 $ mage -f
 Targets:
-  go:cover                Run go tool cover, defaults: GO_COVER_ARGS="-html=coverage.out -o coverage.html"
-  go:coverage             Open the coverage output in your browser (runs "go tool cover -html=coverage.out")
-  go:test                 Run go test, defaults: GO_TEST_ARGS="-v -race -coverprofile=coverage.out -covermode=atomic ./..."
-  golangcilint:install    golangci-lint to $TOOL_CACHE/bin/golangci-lint-<$GOLANGCILINT_VER>, defaults: GOLANGCILINT_VER=1.19.0.
-  golangcilint:rm         Remove all cached versions of golangci-lint
-  golangcilint:run        golangci-lint, defaults: GOLANGCILINT_VER=1.19.0.
+  go:checkVersion        checks that the version of go being used is the version specified or the latest version
+  go:cover               runs go tool cover with default args set from `CoverArgs`
+  go:coverage            opens the coverage output in your browser (runs "go tool cover -html=coverage.out")
+  go:test                runs `go test` with default args set from `TestArgs`
+  golangcilint:remove    removes all cached versions of golangci-lint
+  golangcilint:run       runs golangci-lint using RunArgs
 ```
+
+### Targets
+
+#### Go Namespace
+
+`go:checkVersion` - Asserts that the version is use is the version specified. If the version specified ends in `.x` or only has two parts (`go1.13`) it is expanded to the most recent patch version of that go release. Modify the version by specifying `gons.Version` in your magefile.
+
+`go:cover` - Generate cover file. Modify the arguments by specifying `gons.CoverArgs` in your magefile.
+
+`go:coverage` - Generates coverage information and opens it in your browser. Modify the arguments by specifying `gons.CoverArgs` in your magefile.
+
+`go:test` - Runs go test. Modify the arguments by specifying `gons.TestArgs` in your magefile.
+
+#### Tool Namespace
+
+`golangclilint:remove` - Removes all cached versions of golangci-lint.
+
+`golangcilint:run` - Runs golangci-lint. Modify the arguments by specifying `toolns.GolangciLint.RunArgs` and change the version by specifying `toolns.GolangciLint.Version` in your magefile.

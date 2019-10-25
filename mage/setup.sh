@@ -205,7 +205,7 @@ fi
 #
 CID="${CWD}/.circleci"
 CIC="${CID}/config.yml"
-mkdir -p {$CID}
+mkdir -p ${CID}
 
 writeCircleCIConfig() {
     local f=${1}
