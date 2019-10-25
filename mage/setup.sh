@@ -88,7 +88,7 @@ EOF
 
 gofmt -w ${MF}
 go get github.com/freeformz/bits/mage
-go mod edit -replace=github.com/freeformz/bits=../bits
+#go mod edit -replace=github.com/freeformz/bits=../bits
 
 #
 # golangci-lint
