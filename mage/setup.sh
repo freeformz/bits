@@ -88,6 +88,8 @@ EOF
 
 gofmt -w ${MF}
 go get github.com/freeformz/bits/mage@v0.0.4
+go mod tidy
+go mod verify
 #go mod edit -replace=github.com/freeformz/bits=../bits
 
 #
