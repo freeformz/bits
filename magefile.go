@@ -4,7 +4,9 @@ package main
 
 import (
 	// mage:import
-	_ "github.com/freeformz/bits/mage/gons"
-	// mage:import
-	_ "github.com/freeformz/bits/mage/toolns"
+	"github.com/freeformz/bits/mage/gons"
 )
+
+func init() {
+	gons.Version = "go1.13"
+}

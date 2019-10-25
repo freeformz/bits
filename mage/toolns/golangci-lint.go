@@ -1,4 +1,4 @@
-package tools
+package toolns
 
 import (
 	"fmt"
@@ -11,6 +11,7 @@ import (
 	"github.com/magefile/mage/sh"
 )
 
+// Golangcilint mage namespace
 type Golangcilint mg.Namespace
 
 const (
@@ -18,10 +19,20 @@ const (
 	golangciURLFormat = "https://github.com/golangci/golangci-lint/releases/download/v%s/golangci-lint-%s-%s-%s.tar.gz"
 	// version,os,arch
 	golangciArchiveDirFormat = "golangci-lint-%s-%s-%s"
-	golangciDefaultVersion   = "1.19.0"
 )
 
-// Install golangci-lint to $TOOL_CACHE/bin/golangci-lint-<$GOLANGCILINT_VER>, defaults: GOLANGCILINT_VER=1.19.0.
+var (
+	// Golangci configuration
+	Golangci = struct {
+		Version string
+		RunArgs string
+	}{
+		Version: "1.20.0",
+		RunArgs: "--fix ./...",
+	}
+)
+
+// Install installs golangci-lint to $BIT_CACHE/tools/bin/golangci-lint-<Version>
 func (g Golangcilint) Install() error {
 	t, err := g.path()
 	if err != nil {
@@ -29,13 +40,12 @@ func (g Golangcilint) Install() error {
 	}
 
 	if _, err := os.Stat(t); os.IsNotExist(err) {
-		ver := g.ver()
 		if mg.Verbose() {
-			fmt.Println("Downloading: golangci-lint-v" + ver + " to " + t)
+			fmt.Println("Downloading: golangci-lint-v" + Golangci.Version + " to " + t)
 		}
 		if err := dlAndExtract(
-			fmt.Sprintf(golangciURLFormat, ver, ver, runtime.GOOS, runtime.GOARCH),
-			filepath.Join(fmt.Sprintf(golangciArchiveDirFormat, ver, runtime.GOOS, runtime.GOARCH), "golangci-lint"),
+			fmt.Sprintf(golangciURLFormat, Golangci.Version, Golangci.Version, runtime.GOOS, runtime.GOARCH),
+			filepath.Join(fmt.Sprintf(golangciArchiveDirFormat, Golangci.Version, runtime.GOOS, runtime.GOARCH), "golangci-lint"),
 			t); err != nil {
 			return err
 		}
@@ -43,47 +53,27 @@ func (g Golangcilint) Install() error {
 	return nil
 }
 
-func (g Golangcilint) ver() string {
-	ver := os.Getenv("GOLANGCILINT_VER")
-	if ver == "" {
-		ver = golangciDefaultVersion
-	}
-	return ver
-}
-
 func (g Golangcilint) path() (string, error) {
 	d, err := binDir()
 	if err != nil {
 		return "", err
 	}
-	ver := os.Getenv("GOLANGCILINT_VER")
-	if ver == "" {
-		ver = golangciDefaultVersion
-	}
-	return filepath.Join(d, fmt.Sprintf("golangci-lint-%s", ver)), nil
+	return filepath.Join(d, fmt.Sprintf("golangci-lint-%s", Golangci.Version)), nil
 }
 
-func (g Golangcilint) runOpts() []string {
-	opts := os.Getenv("GOLANGCILINT_RUN_OPTS")
-	if opts == "" {
-		return []string{"--fix", "./..."}
-	}
-	return strings.Split(opts, " ")
-}
-
-// Run golangci-lint, defaults: GOLANGCILINT_VER=1.19.0. GOLANGCILINT_RUN_OPTS="--fix ./..."
+// Run runs golangci-lint using RunArgs
 func (g Golangcilint) Run() error {
 	mg.Deps(g.Install)
 	p, err := g.path()
 	if err != nil {
 		return err
 	}
-	opts := append([]string{"run"}, g.runOpts()...)
+	opts := append([]string{"run"}, strings.Split(Golangci.RunArgs, " ")...)
 	return sh.RunV(p, opts...)
 }
 
-// Remove all cached versions of golangci-lint
-func (Golangcilint) Rm() error {
+// Remove  removes all cached versions of golangci-lint
+func (Golangcilint) Remove() error {
 	d, err := binDir()
 	if err != nil {
 		return err
