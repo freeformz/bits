@@ -7,7 +7,7 @@ $ go mod init <module name>
 $ git init .
 $ git add go.mod
 $ git commit -avm "new go module"
-$ export bt=$(mktemp); curl -s -L https://raw.githubusercontent.com/freeformz/bits/v0.0.5/mage/setup.sh > $bt && (bash $bt; rm -f $bt); unset bt
+$ export bt=$(mktemp); curl -s -L https://raw.githubusercontent.com/freeformz/bits/v0.0.6/mage/setup.sh > $bt && (bash $bt; rm -f $bt); unset bt
 ...
 ```
 

@@ -194,11 +194,11 @@ if [ ! -e "${GI}" ]; then
 fi
 
 if [ -z "$(grep "^coverage.out$" < ${GI})" ]; then
-    echo "coverage.out" >> ${GI}
+    echo -e "coverage.out\n" >> ${GI}
 fi
 
 if [ -z "$(grep "^coverage.html$" < ${GI})" ]; then
-    echo "coverage.html" >> ${GI}
+    echo -e "coverage.html\n" >> ${GI}
 fi
 
 #
