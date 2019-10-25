@@ -1,6 +1,7 @@
 package toolns
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -22,8 +23,8 @@ const (
 )
 
 var (
-	// Golangci configuration
-	Golangci = struct {
+	// GolangciLint configuration
+	GolangciLint = struct {
 		Version string
 		RunArgs string
 	}{
@@ -32,8 +33,8 @@ var (
 	}
 )
 
-// Install installs golangci-lint to $BIT_CACHE/tools/bin/golangci-lint-<Version>
-func (g Golangcilint) Install() error {
+// installs golangci-lint to $BIT_CACHE/tools/bin/golangci-lint-<Version>
+func (g Golangcilint) install(ctx context.Context) error {
 	t, err := g.path()
 	if err != nil {
 		return err
@@ -41,11 +42,11 @@ func (g Golangcilint) Install() error {
 
 	if _, err := os.Stat(t); os.IsNotExist(err) {
 		if mg.Verbose() {
-			fmt.Println("Downloading: golangci-lint-v" + Golangci.Version + " to " + t)
+			fmt.Println("Downloading: golangci-lint-v" + GolangciLint.Version + " to " + t)
 		}
 		if err := dlAndExtract(
-			fmt.Sprintf(golangciURLFormat, Golangci.Version, Golangci.Version, runtime.GOOS, runtime.GOARCH),
-			filepath.Join(fmt.Sprintf(golangciArchiveDirFormat, Golangci.Version, runtime.GOOS, runtime.GOARCH), "golangci-lint"),
+			fmt.Sprintf(golangciURLFormat, GolangciLint.Version, GolangciLint.Version, runtime.GOOS, runtime.GOARCH),
+			filepath.Join(fmt.Sprintf(golangciArchiveDirFormat, GolangciLint.Version, runtime.GOOS, runtime.GOARCH), "golangci-lint"),
 			t); err != nil {
 			return err
 		}
@@ -58,22 +59,22 @@ func (g Golangcilint) path() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(d, fmt.Sprintf("golangci-lint-%s", Golangci.Version)), nil
+	return filepath.Join(d, fmt.Sprintf("golangci-lint-%s", GolangciLint.Version)), nil
 }
 
 // Run runs golangci-lint using RunArgs
-func (g Golangcilint) Run() error {
-	mg.Deps(g.Install)
+func (g Golangcilint) Run(ctx context.Context) error {
+	mg.CtxDeps(ctx, g.install)
 	p, err := g.path()
 	if err != nil {
 		return err
 	}
-	opts := append([]string{"run"}, strings.Split(Golangci.RunArgs, " ")...)
+	opts := append([]string{"run"}, strings.Split(GolangciLint.RunArgs, " ")...)
 	return sh.RunV(p, opts...)
 }
 
-// Remove  removes all cached versions of golangci-lint
-func (Golangcilint) Remove() error {
+// Remove removes all cached versions of golangci-lint
+func (Golangcilint) Remove(ctx context.Context) error {
 	d, err := binDir()
 	if err != nil {
 		return err
