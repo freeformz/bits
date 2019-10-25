@@ -87,7 +87,7 @@ func init() {
 EOF
 
 gofmt -w ${MF}
-go get github.com/freeformz/bits/mage
+go get github.com/freeformz/bits/mage@v0.0.3
 #go mod edit -replace=github.com/freeformz/bits=../bits
 
 #
