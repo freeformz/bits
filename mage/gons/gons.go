@@ -2,10 +2,9 @@ package gons
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -17,15 +16,10 @@ import (
 
 var (
 	ModuleName = moduleName() // ModuleName, if not set this is determined from the go.mod file
-	UseVersion = ""
+	Version    = ""
+	CoverArgs  = "-html=coverage.out -o coverage.html"
+	TestArgs   = "-v -race -coverprofile=coverage.out -covermode=atomic ./..."
 )
-
-func version() (string, error) {
-	if UseVersion != "" {
-		return expandVersion(UseVersion)
-	}
-	return latestVersion()
-}
 
 //TODO: warning or error instead of just empty return
 func moduleName() string {
@@ -50,52 +44,22 @@ func moduleName() string {
 	return ""
 }
 
-//TODO: warning or error instead of just empty return
-func latestVersion() (string, error) {
-	r, err := http.Get("https://golang.org/VERSION?m=text")
-	if err != nil {
-		return "", err
-	}
-	d, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		return "", err
-	}
-	fmt.Println("GoVersion:", string(d))
-	return string(d), nil
-}
-
 type Go mg.Namespace
 
 var (
-	goTest           = sh.RunCmd("go", "test")
-	goCover          = sh.RunCmd("go", "tool", "cover")
-	DefaultTestArgs  = []string{"-v", "-race", "-coverprofile=coverage.out", "-covermode=atomic", "./..."}
-	DefaultCoverArgs = []string{"-html=coverage.out", "-o", "coverage.html"}
+	goTest  = sh.RunCmd("go", "test")
+	goCover = sh.RunCmd("go", "tool", "cover")
+	goList  = sh.OutCmd("go", "list", "-json", "-find", "./...")
 )
 
-func testArgs() []string {
-	e := os.Getenv("GO_TEST_ARGS")
-	if e == "" {
-		return DefaultTestArgs
-	}
-	return strings.Split(e, " ")
-}
-
-// Run go test, defaults: GO_TEST_ARGS="-v -race -coverprofile=coverage.out -covermode=atomic ./..."
-func (g Go) Test() error {
-	return goTest(testArgs()...)
-}
-
-func coverArgs() []string {
-	e := os.Getenv("GO_COVER_ARGS")
-	if e == "" {
-		return DefaultCoverArgs
-	}
-	return strings.Split(e, " ")
+// Test runs `go test` with default args set from `TestArgs`
+func (g Go) Test(ctx context.Context) error {
+	mg.CtxDeps(ctx, g.CheckVersion)
+	return goTest(strings.Split(TestArgs, " ")...)
 }
 
 func goFiles() ([]string, error) {
-	out, err := sh.Output("go", "list", "-json", "-find", "./...")
+	out, err := goList()
 	if err != nil {
 		return nil, err
 	}
@@ -118,24 +82,51 @@ func goFiles() ([]string, error) {
 	return goFiles, nil
 }
 
-// Run go tool cover, defaults: GO_COVER_ARGS="-html=coverage.out -o coverage.html"
-func (g Go) Cover() error {
-	v, err := versions()
-	fmt.Println("versions:", v, err)
-	fmt.Println(expandVersion("go1.13.x"))
+// CheckVersion checks that the version of go being used is the version specified or the latest version
+func (g Go) CheckVersion(ctx context.Context) error {
+	ver := Version
+	if ver == "" {
+		var err error
+		ver, err = latestVersion()
+		if err != nil {
+			return err
+		}
+	}
+	cv, err := sh.Output("go", "version")
+	if err != nil {
+		return err
+	}
+	scv := strings.Split(cv, " ")
+	if len(scv) != 4 {
+		return fmt.Errorf("Unknown `go version` string: %q", cv)
+	}
+	ver, err = expandVersion(ver)
+	if err != nil {
+		return err
+	}
+	if ver != scv[2] {
+		return fmt.Errorf("current version (%s) is not the same as specified/latest version (%s)", scv[2], ver)
+	}
+	fmt.Printf("current go version (%s) matches specified/latest version (%s)\n", scv[2], ver)
+	return nil
+}
+
+// Cover runs go tool cover with default args set from `CoverArgs`
+func (g Go) Cover(ctx context.Context) error {
+	mg.CtxDeps(ctx, g.CheckVersion)
 	gf, err := goFiles()
 	if err != nil {
 		return err
 	}
-	need, _ := target.Path("coverage.out", gf...)
-	if need {
+	if need, _ := target.Path("coverage.out", gf...); need {
 		mg.Deps(g.Test)
 	}
-	return goCover(coverArgs()...)
+	return goCover(strings.Split(CoverArgs, " ")...)
 }
 
-// Open the coverage output in your browser (runs "go tool cover -html=coverage.out")
-func (g Go) Coverage() error {
+// Coverage opens the coverage output in your browser (runs "go tool cover -html=coverage.out")
+func (g Go) Coverage(ctx context.Context) error {
+	mg.CtxDeps(ctx, g.CheckVersion, g.Cover)
 	gf, err := goFiles()
 	if err != nil {
 		return err

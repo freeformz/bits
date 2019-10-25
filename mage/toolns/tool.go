@@ -1,39 +1,27 @@
-package tools
+package toolns
 
 import (
 	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
-	"os/user"
 	"path/filepath"
 
 	"github.com/magefile/mage/sh"
 	"github.com/mholt/archiver"
+
+	"github.com/freeformz/bits/mage/internal"
 )
 
-const dirMode = os.ModeDir | os.ModePerm
+const (
+	dirMode = os.ModeDir | os.ModePerm
+	ns      = "tool"
+)
 
 var defaultCache = filepath.Join(".bit", "toolcache")
 
-func defaultToolDir() (string, error) {
-	user, err := user.Current()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(user.HomeDir, defaultCache), nil
-}
-
-func toolsDir() (string, error) {
-	tl := os.Getenv("TOOL_CACHE")
-	if tl == "" {
-		return defaultToolDir()
-	}
-	return tl, nil
-}
-
 func binDir() (string, error) {
-	d, err := toolsDir()
+	d, err := internal.CacheDirectory(ns)
 	if err != nil {
 		return "", err
 	}

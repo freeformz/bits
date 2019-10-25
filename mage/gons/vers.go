@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -156,4 +157,23 @@ func expandVersion(ver string) (string, error) {
 		ver += fmt.Sprintf(".%d", pv)
 	}
 	return ver, nil
+}
+
+func latestVersion() (string, error) {
+	r, err := http.Get("https://golang.org/VERSION?m=text")
+	if err != nil {
+		return "", err
+	}
+	d, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return "", err
+	}
+	return string(d), nil
+}
+
+func version() (string, error) {
+	if Version != "" {
+		return expandVersion(Version)
+	}
+	return latestVersion()
 }
