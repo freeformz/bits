@@ -1,0 +1,12 @@
+
+version: 2.1
+orbs:
+  golang: heroku/golang@0.2.0
+
+workflows:
+  ci:
+    jobs:
+      - golang/golangci-lint:
+          version: "v1.20.0"
+      - golang/test-nodb:
+          version: "go1.13"
