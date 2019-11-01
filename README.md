@@ -10,7 +10,28 @@ $ git init .
 $ git add go.mod go.sum
 $ git commit -avm "new go module w/bits"
 $ go run github.com/freeformz/bits/cmd/setup
-...
+go run github.com/freeformz/bits/cmd/setup
+
+Repo directory: "/Users/emuller/devel/<project>"
+Magefile: "/Users/emuller/devel/<project>/magefile.go"
+go.mod: "/Users/emuller/devel/<project>/go.mod"
+.golangci.tml: "/Users/emuller/devel/<project>/.golangci.yml"
+.gitignore: "/Users/emuller/devel/<project>/.gitignore"
+
+Module Name: "github.com/heroku/<project>"
+Current major Go version: go1.13
+
+setup complete!
+
+Files to take a look at:
+/Users/emuller/devel/<project>/magefile.go: Magefile used to configure bits / write additional tasks
+/Users/emuller/devel/<project>/.golangci.yml: Golangci-lint config file
+/Users/emuller/devel/<project>/.gitignore: git ignore file
+/Users/emuller/devel/<project>/.circleci/config.yml: CircleCI config file
+
+Don't forget to commit the changes/new files.
+
+Run 'mage -f' to see the initial set of mage targets.
 ```
 
 Creates a defaults magefile.go, .circleci config, .gitignore, & .golangci.yml
