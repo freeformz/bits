@@ -68,13 +68,11 @@ func fetchAndCacheVersions() ([]string, error) {
 		for _, v := range rd.Contents {
 			if strings.HasSuffix(v.Key, suffix) {
 				vers = append(vers, strings.TrimSuffix(v.Key, suffix))
-				fmt.Println(v.Key)
 			}
 		}
 		if !rd.IsTruncated {
 			break
 		}
-		fmt.Println("loop")
 		marker = rd.NextMarker
 	}
 	e := json.NewEncoder(f)
