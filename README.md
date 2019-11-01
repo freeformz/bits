@@ -4,10 +4,11 @@
 
 ```console
 $ go mod init <module name>
+$ go get github.com/freeformz/bits
 $ git init .
-$ git add go.mod
-$ git commit -avm "new go module"
-$ export bt=$(mktemp); curl -s -L https://raw.githubusercontent.com/freeformz/bits/v0.0.7/mage/setup.sh > $bt && (bash $bt; rm -f $bt); unset bt
+$ git add go.mod go.sum
+$ git commit -avm "new go module w/bits"
+$ go run github.com/freeformz/bits/cmd/setup
 ...
 ```
 
