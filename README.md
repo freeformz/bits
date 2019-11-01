@@ -3,8 +3,9 @@
 ### Quick Start
 
 ```console
+$ export BITS_VERSION="$(curl -s https://api.github.com/repos/freeformz/bits/releases/latest | grep tag_name | awk '{ sub(/"/, "", $2); sub(/",/, "", $2); print $2 }')"
 $ go mod init <module name>
-$ go get github.com/freeformz/bits
+$ go get github.com/freeformz/bits/cmd/setup@${BITS_VERSION}
 $ git init .
 $ git add go.mod go.sum
 $ git commit -avm "new go module w/bits"
