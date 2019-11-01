@@ -34,9 +34,13 @@ func main() {
 	assertGitPorcelain()
 	assertFileExists(filepath.Join(cwd, "go.mod"), "No go.mod file. Use with go modules is required.")
 
-	if err := backupIfFileExists(mf); err != nil {
+	err = backupIfFileExists(mf)
+	if err != nil && !os.IsNotExist(err) {
 		fmt.Println(err.Error())
 		os.Exit(1)
+	}
+	if err == nil {
+		fmt.Printf("Renamed existing %s to %s.bak\n", mf, mf)
 	}
 
 	modName, err := determineModuleName(gomodf)
@@ -71,9 +75,13 @@ func main() {
 	}
 
 	// golangci-lint
-	if err := backupIfFileExists(golangcilintf); err != nil {
+	err = backupIfFileExists(golangcilintf)
+	if err != nil && !os.IsNotExist(err) {
 		fmt.Println(err.Error())
 		os.Exit(1)
+	}
+	if err == nil {
+		fmt.Printf("Renamed existing %s to %s.bak\n", golangcilintf, golangcilintf)
 	}
 	if err := createGolangcilintConfig(golangcilintf, modName); err != nil {
 		fmt.Printf("unable to create %q: %s\n", golangcilintf, err.Error())
@@ -91,9 +99,13 @@ func main() {
 		fmt.Printf("unable to create circle ci directory %q: %s\n", ccid, err.Error())
 		os.Exit(1)
 	}
-	if err := backupIfFileExists(ccicf); err != nil {
+	err = backupIfFileExists(ccicf)
+	if err != nil && !os.IsNotExist(err) {
 		fmt.Println(err.Error())
 		os.Exit(1)
+	}
+	if err == nil {
+		fmt.Printf("Renamed existing %s to %s.bak\n", ccicf, ccicf)
 	}
 	if err := createCircleCIConfig(ccicf, goVersion); err != nil {
 		fmt.Printf("unable to setup circle ci config %q: %s\n", ccicf, err.Error())
@@ -128,7 +140,7 @@ func determineModuleName(mf string) (string, error) {
 func backupIfFileExists(f string) error {
 	fi, err := os.Stat(f)
 	if os.IsNotExist(err) {
-		return nil
+		return err
 	}
 	if err != nil {
 		return fmt.Errorf("unexpected error backing up file (%s) if it exists: %s", f, err.Error())
