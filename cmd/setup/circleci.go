@@ -3,6 +3,7 @@ package main
 import (
 	"html/template"
 	"os"
+	"strings"
 )
 
 const (
@@ -33,5 +34,5 @@ func createCircleCIConfig(cf, goVer string) error {
 		return err
 	}
 	defer f.Close()
-	return t.Execute(f, struct{ GoVersion, GolangciLintVersion, OrbVersion string }{goVer, golangCIVersion, orbVersion})
+	return t.Execute(f, struct{ GoVersion, GolangciLintVersion, OrbVersion string }{strings.TrimPrefix(goVer, "go"), golangCIVersion, orbVersion})
 }
