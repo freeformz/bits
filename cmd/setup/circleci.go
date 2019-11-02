@@ -34,5 +34,7 @@ func createCircleCIConfig(cf, goVer string) error {
 		return err
 	}
 	defer f.Close()
-	return t.Execute(f, struct{ GoVersion, GolangciLintVersion, OrbVersion string }{strings.TrimPrefix(goVer, "go"), golangCIVersion, orbVersion})
+	return t.Execute(f, struct {
+		GoVersion, GolangciLintVersion, OrbVersion string
+	}{strings.TrimPrefix(goVer, "go"), golangCIVersion, orbVersion})
 }

@@ -4,7 +4,9 @@ package main
 
 import (
 	// mage:import
-	_ "github.com/freeformz/bits/mage/toolns"
+	"github.com/freeformz/bits/mage/toolns"
+	"github.com/magefile/mage/mg"
+
 	// mage:import
 	"github.com/freeformz/bits/mage/gons"
 )
@@ -20,4 +22,11 @@ func init() {
 	// Golangci-lint settings (defaults), remove the '_' part of the import above
 	// toolns.GolangciLint.Version = "1.20.0"
 	// toolns.GolangciLint.RunArgs = "--fix ./..."
+}
+
+func Precommit() error {
+	var g gons.Go
+	var golangciLint toolns.Golangcilint
+	mg.Deps(g.CheckVersion, g.Test, golangciLint.Run)
+	return nil
 }
