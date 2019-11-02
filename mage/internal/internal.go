@@ -16,6 +16,7 @@ const (
 var (
 	dir = ".bit"
 
+	// ErrMaxAge is returned if the cache file is older than 24 hours
 	ErrMaxAge = fmt.Errorf("file is older than 24 hours")
 )
 

@@ -15,10 +15,14 @@ import (
 )
 
 var (
-	ModuleName = moduleName() // ModuleName, if not set this is determined from the go.mod file
-	Version    = ""
-	CoverArgs  = "-html=coverage.out -o coverage.html"
-	TestArgs   = "-v -race -coverprofile=coverage.out -covermode=atomic ./..."
+	// ModuleName if not set this is determined from the go.mod file
+	ModuleName = moduleName()
+	// Version of go to use. If not set it defaults to the latest version of Go
+	Version = ""
+	// CoverArgs to supply to go test.
+	CoverArgs = "-html=coverage.out -o coverage.html"
+	// TestArgs to supply to go test.
+	TestArgs = "-v -race -coverprofile=coverage.out -covermode=atomic ./..."
 )
 
 //TODO: warning or error instead of just empty return
@@ -44,6 +48,7 @@ func moduleName() string {
 	return ""
 }
 
+// Go namespace
 type Go mg.Namespace
 
 var (
