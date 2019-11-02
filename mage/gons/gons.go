@@ -98,7 +98,7 @@ func (g Go) CheckVersion(ctx context.Context) error {
 	}
 	scv := strings.Split(cv, " ")
 	if len(scv) != 4 {
-		return fmt.Errorf("Unknown `go version` string: %q", cv)
+		return fmt.Errorf("unknown `go version` string: %q", cv)
 	}
 	ver, err = expandVersion(ver)
 	if err != nil {

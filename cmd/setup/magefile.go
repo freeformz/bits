@@ -45,7 +45,7 @@ func createMageFile(mfn, module, version string) error {
 	)
 }
 
-func goModuleUpdate(f string) error {
+func goModuleUpdate() error {
 	if err := run("go", "get", "github.com/freeformz/bits/mage"); err != nil {
 		return err
 	}

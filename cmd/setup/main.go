@@ -8,7 +8,7 @@ import (
 
 const dirMode = os.ModeDir | os.ModePerm
 
-func main() {
+func main() { //nolint:gocyclo
 	assertMageExecutes()
 
 	cwd, err := os.Getwd()
@@ -69,7 +69,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := goModuleUpdate(gomodf); err != nil {
+	if err := goModuleUpdate(); err != nil {
 		fmt.Printf("unable to prep go.mod file: %s\n", err.Error())
 		os.Exit(1)
 	}

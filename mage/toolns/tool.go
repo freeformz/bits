@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/magefile/mage/sh"
 	"github.com/mholt/archiver"
 
 	"github.com/freeformz/bits/mage/internal"
@@ -17,8 +16,6 @@ const (
 	dirMode = os.ModeDir | os.ModePerm
 	ns      = "tool"
 )
-
-var defaultCache = filepath.Join(".bit", "toolcache")
 
 func binDir() (string, error) {
 	d, err := internal.CacheDirectory(ns)
@@ -31,10 +28,6 @@ func binDir() (string, error) {
 		err = nil
 	}
 	return d, err
-}
-
-func repoRoot() (string, error) {
-	return sh.Output("git", "rev-parse", "--show-toplevel")
 }
 
 // TODO: Support something other than .tar.gz

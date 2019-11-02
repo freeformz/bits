@@ -16,7 +16,7 @@ const (
 var (
 	dir = ".bit"
 
-	MaxAgeErr = fmt.Errorf("file is older than 24 hours")
+	ErrMaxAge = fmt.Errorf("file is older than 24 hours")
 )
 
 const dirMode = os.ModeDir | os.ModePerm
@@ -47,7 +47,7 @@ func CacheDirectory(ns string) (string, error) {
 }
 
 // CachedFile to use for the given namespace (ns) and file name (ns). Uses CacheDirectory() as the base.
-// May return MaxAgeErr as an indicator to the caller that the file is older than maxAge
+// May return ErrMaxAge as an indicator to the caller that the file is older than maxAge
 func CachedFile(ns, fn string) (io.ReadCloser, error) {
 	// locate the file based on the cache dir
 	cd, err := CacheDirectory(ns)
@@ -62,7 +62,7 @@ func CachedFile(ns, fn string) (io.ReadCloser, error) {
 		return nil, err
 	}
 	if time.Since(fi.ModTime()) > maxAge {
-		return nil, MaxAgeErr
+		return nil, ErrMaxAge
 	}
 	return os.Open(fp)
 }

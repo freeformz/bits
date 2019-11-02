@@ -20,19 +20,6 @@ var (
 	versionCacheFileName = "versions.json"
 )
 
-// versionArchiveURL returns the zip or tar.gz URL of the given Go version.
-func versionArchiveURL(version string) string {
-	ext := ".tar.gz"
-	if runtime.GOOS == "windows" {
-		ext = ".zip"
-	}
-	arch := runtime.GOARCH
-	if runtime.GOOS == "linux" && runtime.GOARCH == "arm" {
-		arch = "armv6l"
-	}
-	return "https://storage.googleapis.com/golang/" + version + "." + runtime.GOOS + "-" + arch + ext
-}
-
 func fetchAndCacheVersions() ([]string, error) {
 	cd, err := internal.CacheDirectory(ns)
 	if err != nil {
@@ -64,7 +51,9 @@ func fetchAndCacheVersions() ([]string, error) {
 				ETag string
 			}
 		}{}
-		d.Decode(&rd)
+		if err := d.Decode(&rd); err != nil {
+			return nil, err
+		}
 		for _, v := range rd.Contents {
 			if strings.HasSuffix(v.Key, suffix) {
 				vers = append(vers, strings.TrimSuffix(v.Key, suffix))
@@ -82,7 +71,7 @@ func fetchAndCacheVersions() ([]string, error) {
 func versions() ([]string, error) {
 	cd, err := internal.CachedFile(ns, versionCacheFileName)
 	if err != nil {
-		if err == internal.MaxAgeErr || os.IsNotExist(err) {
+		if err == internal.ErrMaxAge || os.IsNotExist(err) {
 			return fetchAndCacheVersions()
 		}
 		return nil, err
@@ -93,6 +82,8 @@ func versions() ([]string, error) {
 	return v, d.Decode(&v)
 }
 
+//TODO[freeformz]: Refactor and remove nolint
+//nolint:gocyclo
 func expandVersion(ver string) (string, error) {
 	p := strings.Split(ver, ".")
 	if len(p) == 3 && p[2] != "x" { // already expanded, except if the patch is ".x"
@@ -167,11 +158,4 @@ func latestVersion() (string, error) {
 		return "", err
 	}
 	return string(d), nil
-}
-
-func version() (string, error) {
-	if Version != "" {
-		return expandVersion(Version)
-	}
-	return latestVersion()
 }

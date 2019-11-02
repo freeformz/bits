@@ -21,13 +21,15 @@ func setBitCacheToTestData(t *testing.T) func() {
 	}
 	wd, err := os.Getwd()
 	if err != nil {
-		t.Fatal("unexpected error", err)
+		t.Fatal("unexpected error:", err)
 	}
 	td := filepath.Join(filepath.Dir(wd), "testdata")
 	os.Setenv("BIT_CACHE", td)
-	filepath.Walk(td, func(path string, info os.FileInfo, err error) error {
+	if err := filepath.Walk(td, func(path string, info os.FileInfo, err error) error {
 		return sh.Run("touch", path)
-	})
+	}); err != nil {
+		t.Fatal("unexpected error:", err)
+	}
 	return f
 }
 
@@ -44,6 +46,7 @@ func TestExpandVersion(t *testing.T) {
 		"go1.11.x": {expected: "go1.11.13"},
 	} {
 		tc := tc
+		name := name
 		t.Run(name, func(t *testing.T) {
 			got, err := expandVersion(name)
 			if tc.err != err {
