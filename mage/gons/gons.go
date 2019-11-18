@@ -52,19 +52,15 @@ func moduleName() string {
 type Go mg.Namespace
 
 var (
-	goTest  = sh.OutCmd("go", "test")
 	goCover = sh.RunCmd("go", "tool", "cover")
 	goList  = sh.OutCmd("go", "list", "-json", "-find", "./...")
 )
 
-// Test runs `go test` with default args set from `TestArgs`
+// Test runs `go test` with default args set from `TestArgs`. Will always output
+// `go test` output.
 func (g Go) Test(ctx context.Context) error {
 	mg.CtxDeps(ctx, g.CheckVersion)
-	out, err := goTest(strings.Split(TestArgs, " ")...)
-	if err != nil {
-		fmt.Println(out)
-	}
-	return err
+	return sh.RunV("go", append([]string{"test"}, strings.Split(TestArgs, " ")...)...)
 }
 
 func goFiles() ([]string, error) {
